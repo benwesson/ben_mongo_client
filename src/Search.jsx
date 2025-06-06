@@ -43,7 +43,7 @@ export function Search() {
                             onChange={handleInputChange}
                             placeholder="Enter A Valid User ID"
                             maxLength="25"
-                            mr={2} // margin right for spacing
+                            mr={2} 
                         />
                         <IconButton
                             type='submit'

@@ -9,7 +9,11 @@ import {
   Th,
   Td,
   TableContainer,
-  Box
+  Box,
+  Button,
+  ButtonGroup,
+  Text
+
 } from '@chakra-ui/react'
 
 export function App() {
@@ -20,17 +24,37 @@ export function App() {
       .catch(err => console.log(err))
   }, [])
 
+  function handleDelete(id) {
+    axios.delete(`http://localhost:3000/api/users/${id}`)
+      .then(() => {
+       console.log("User deleted successfully")
+        setUsers(users.filter(user => user._id !== id))
+        //reomve user right away
+      })
+      .catch(err => console.log(err))
+  }
+
+  
   return (
+    
     <ChakraProvider>
+      <Text fontSize="2xl" textAlign="center" mt={4}>Table of Users</Text>
+      <ButtonGroup display="flex" justifyContent="center" mt={4}>
+        <Button colorScheme="blue" onClick={() => window.location.reload()}>Refresh</Button>
+        <Button colorScheme="green" onClick={() => window.location.href = '/search'}>Search</Button>
+      </ButtonGroup>
       <Box display="flex" justifyContent="center" mt={8}>
         <TableContainer>
-          <Table variant="striped" colorScheme="gray">
+          <Table variant="simple" colorScheme="blue">
             <Thead>
               <Tr>
                 <Th>id</Th>
                 <Th>First Name</Th>
                 <Th>Last Name</Th>
                 <Th>Gender</Th>
+                <Th>Edit</Th>
+                <Th>Delete</Th>
+                <Th>Page</Th>
               </Tr>
             </Thead>
             <Tbody>
@@ -40,6 +64,9 @@ export function App() {
                   <Td>{user.first_name}</Td>
                   <Td>{user.last_name}</Td>
                   <Td>{user.gender}</Td>
+                  <Td><Button  onClick={() => handleDelete(user._id)}>Edit</Button></Td>
+                  <Td><Button  onClick={() => handleDelete(user._id)}>Delete</Button></Td>
+                  <Td><Button colorScheme="teal" onClick={() => window.location.href = `/${user._id}`}>Page</Button></Td>
                 </Tr>
               ))}
             </Tbody>
@@ -47,5 +74,6 @@ export function App() {
         </TableContainer>
       </Box>
     </ChakraProvider>
+   
   )
 }
