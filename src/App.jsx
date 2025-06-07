@@ -30,16 +30,25 @@ import {
 } from '@chakra-ui/react'
 
 export function App() {
-  //modal code
-  const { isOpen, onOpen, onClose } = useDisclosure()
-  const initialRef = useRef()
   
-  const [editFirst, setEditFirst] = useState([])
-  const [editLast, setEditLast] = useState([])
-  const [editGender, setEditGender] = useState([])
+  const {
+    isOpen: isEditOpen,
+    onOpen: onEditOpen,
+    onClose: onEditClose
+  } = useDisclosure();
+  const {
+    isOpen: isAddOpen,
+    onOpen: onAddOpen,
+    onClose: onAddClose
+  } = useDisclosure();
 
+ 
+  const [editId, setEditId] = useState(null);
+  const [editFirst, setEditFirst] = useState('');
+  const [editLast, setEditLast] = useState('');
+  const [editGender, setEditGender] = useState('');
 
-
+  
   const [users, setUsers] = useState([])
   useEffect(() => {
     axios.get('http://localhost:3000/api/users')
@@ -57,18 +66,35 @@ export function App() {
       .catch(err => console.log(err))
   }
 
-  function handleEdit(id) {
-    axios.put(`http://localhost:3000/api/users/${id}`, {
-      first_name: editFirst,
-      last_name: editLast,
-      gender: editGender})
+  // When Edit is clicked, set the user info and open the modal
+  function handleEditOpen(user) {
+    setEditId(user._id);
+    setEditFirst(user.first_name);
+    setEditLast(user.last_name);
+    setEditGender(user.gender);
+    onEditOpen();
   }
 
-  function handleAdd() {
+  function handleEditSave() {
+    axios.put(`http://localhost:3000/api/users/${editId}`, {
+      first_name: editFirst,
+      last_name: editLast,
+      gender: editGender
+    }).then(() => {
+      // Optionally update users state here
+      onEditClose();
+    });
+  }
+
+  function handleAddSave() {
     axios.post(`http://localhost:3000/api/users`, {
       first_name: editFirst,
       last_name: editLast,
-      gender: editGender})
+      gender: editGender
+    }).then(() => {
+      // Optionally update users state here
+      onAddClose();
+    });
   }
 
 
@@ -106,44 +132,7 @@ export function App() {
                   <Td>{user.gender}</Td>
                   <Td>
                     
-                    <Button colorScheme='green' onClick={onOpen}>Edit</Button>
-                   
-                    <Modal
-                      initialFocusRef={initialRef}
-                      finalFocusRef={finalRef}
-                      isOpen={isOpen}
-                      onClose={onClose}
-                    >
-                      <ModalOverlay />
-                      <ModalContent>
-                        <ModalHeader>Edit User</ModalHeader>
-                        <ModalCloseButton />
-                        <ModalBody pb={6}>
-                          <FormControl>
-                            <FormLabel>First name</FormLabel>
-                            <Input  value = {editFirst} ref={initialRef}  placeholder='First name' onChange={e => setEditFirst(e.target.value)} />
-                          </FormControl>
-
-                          <FormControl mt={4}>
-                            <FormLabel>Last name</FormLabel>
-                            <Input  value = {editLast} placeholder='Last name' onChange={e => setEditLast(e.target.value)} />
-                          </FormControl>
-
-                          <FormControl mt={4}>
-                            <FormLabel>Gender</FormLabel>
-                            <Input value = {editGender} placeholder='Gender' onChange={e => setEditGender(e.target.value)} />
-                          </FormControl>
-
-                        </ModalBody>
-
-                        <ModalFooter>
-                          <Button onClick={() => handleEdit(user._id)} colorScheme='blue' mr={3}>
-                            Save
-                          </Button>
-                          <Button onClick={onClose}>Cancel</Button>
-                        </ModalFooter>
-                      </ModalContent>
-                    </Modal>
+                    <Button colorScheme='green' onClick={() => handleEditOpen(user)}>Edit</Button>
                 
                   </Td>
                   <Td><Button  colorScheme="red" onClick={() => handleDelete(user._id)}>Delete</Button></Td>
@@ -155,50 +144,62 @@ export function App() {
         </TableContainer>
       </Box>
       <Center>
-        <Button mt={8} colorScheme='green' onClick={onOpen}>Add User</Button>
+        <Button mt={8} colorScheme='green' onClick={onAddOpen}>Add User</Button>
       </Center>
       
                    
-      <Modal
-        initialFocusRef={initialRef}
-        finalFocusRef={finalRef}
-        isOpen={isOpen}
-        onClose={onClose}
-      >
+      {/* Edit Modal */}
+      <Modal isOpen={isEditOpen} onClose={onEditClose}>
         <ModalOverlay />
-        <ModalContent >
-          <Center></Center>
-          <ModalHeader >Edit User</ModalHeader>
+        <ModalContent>
+          <ModalHeader>Edit User</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
             <FormControl>
               <FormLabel>First name</FormLabel>
-              <Input  value = {editFirst} ref={initialRef}  placeholder='First name' onChange={e => setEditFirst(e.target.value)} />
+              <Input value={editFirst} onChange={e => setEditFirst(e.target.value)} />
             </FormControl>
-
             <FormControl mt={4}>
               <FormLabel>Last name</FormLabel>
-              <Input  value = {editLast} placeholder='Last name' onChange={e => setEditLast(e.target.value)} />
+              <Input value={editLast} onChange={e => setEditLast(e.target.value)} />
             </FormControl>
-
             <FormControl mt={4}>
               <FormLabel>Gender</FormLabel>
-              <Input value = {editGender} placeholder='Gender' onChange={e => setEditGender(e.target.value)} />
+              <Input value={editGender} onChange={e => setEditGender(e.target.value)} />
             </FormControl>
-
           </ModalBody>
-
           <ModalFooter>
-            <Button onClick={() => handleAdd()} colorScheme='blue' mr={3}>
-              Save
-            </Button>
-            <Button onClick={onClose}>Cancel</Button>
+            <Button onClick={handleEditSave} colorScheme='blue' mr={3}>Save</Button>
+            <Button onClick={onEditClose}>Cancel</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
-
-      
-
+      {/* Add Modal */}
+      <Modal isOpen={isAddOpen} onClose={onAddClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Add User</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody pb={6}>
+            <FormControl>
+              <FormLabel>First name</FormLabel>
+              <Input value={editFirst} onChange={e => setEditFirst(e.target.value)} />
+            </FormControl>
+            <FormControl mt={4}>
+              <FormLabel>Last name</FormLabel>
+              <Input value={editLast} onChange={e => setEditLast(e.target.value)} />
+            </FormControl>
+            <FormControl mt={4}>
+              <FormLabel>Gender</FormLabel>
+              <Input value={editGender} onChange={e => setEditGender(e.target.value)} />
+            </FormControl>
+          </ModalBody>
+          <ModalFooter>
+            <Button onClick={handleAddSave} colorScheme='blue' mr={3}>Save</Button>
+            <Button onClick={onAddClose}>Cancel</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </ChakraProvider>
    
   )
