@@ -23,7 +23,8 @@ import {
   useDisclosure,
   FormControl,
   FormLabel,
-  Input
+  Input,
+  Center
   
 
 } from '@chakra-ui/react'
@@ -63,6 +64,14 @@ export function App() {
       gender: editGender})
   }
 
+  function handleAdd() {
+    axios.post(`http://localhost:3000/api/users`, {
+      first_name: editFirst,
+      last_name: editLast,
+      gender: editGender})
+  }
+
+
 
   
   
@@ -72,7 +81,7 @@ export function App() {
       <Text fontSize="2xl" textAlign="center" mt={4}>Table of Users</Text>
       <ButtonGroup display="flex" justifyContent="center" mt={4}>
         <Button colorScheme="blue" onClick={() => window.location.reload()}>Refresh</Button>
-        <Button colorScheme="green" onClick={() => window.location.href = '/search'}>Search</Button>
+        
       </ButtonGroup>
       <Box display="flex" justifyContent="center" mt={8}>
         <TableContainer>
@@ -122,7 +131,7 @@ export function App() {
 
                           <FormControl mt={4}>
                             <FormLabel>Gender</FormLabel>
-                            <Input value = {editGender} placeholder='Last name' onChange={e => setEditGender(e.target.value)} />
+                            <Input value = {editGender} placeholder='Gender' onChange={e => setEditGender(e.target.value)} />
                           </FormControl>
 
                         </ModalBody>
@@ -145,6 +154,51 @@ export function App() {
           </Table>
         </TableContainer>
       </Box>
+      <Center>
+        <Button mt={8} colorScheme='green' onClick={onOpen}>Add User</Button>
+      </Center>
+      
+                   
+      <Modal
+        initialFocusRef={initialRef}
+        finalFocusRef={finalRef}
+        isOpen={isOpen}
+        onClose={onClose}
+      >
+        <ModalOverlay />
+        <ModalContent >
+          <Center></Center>
+          <ModalHeader >Edit User</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody pb={6}>
+            <FormControl>
+              <FormLabel>First name</FormLabel>
+              <Input  value = {editFirst} ref={initialRef}  placeholder='First name' onChange={e => setEditFirst(e.target.value)} />
+            </FormControl>
+
+            <FormControl mt={4}>
+              <FormLabel>Last name</FormLabel>
+              <Input  value = {editLast} placeholder='Last name' onChange={e => setEditLast(e.target.value)} />
+            </FormControl>
+
+            <FormControl mt={4}>
+              <FormLabel>Gender</FormLabel>
+              <Input value = {editGender} placeholder='Gender' onChange={e => setEditGender(e.target.value)} />
+            </FormControl>
+
+          </ModalBody>
+
+          <ModalFooter>
+            <Button onClick={() => handleAdd()} colorScheme='blue' mr={3}>
+              Save
+            </Button>
+            <Button onClick={onClose}>Cancel</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      
+
     </ChakraProvider>
    
   )
